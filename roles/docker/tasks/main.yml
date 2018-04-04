@@ -50,7 +50,7 @@
 
 - name: Add users to docker group
   user:
-    name: "{{ item }}"
+    name: "{{ item.username }}"
     group: docker
     append: yes
   with_items: "{{ docker_users }}"

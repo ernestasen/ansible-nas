@@ -1,4 +1,4 @@
 ---
 docker_storage: /var/lib/docker
 docker_users:
-  - "{{ ansible_user }}"
+  - username: "{{ ansible_user }}"

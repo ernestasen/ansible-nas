@@ -1,5 +1,5 @@
 ---
-# Main Features
+# Enable or Disable Features
 plex_enabled: true
 sonarr_enabled: true
 radarr_enabled: true
@@ -13,19 +13,20 @@ time_machine_enabled: true
 nginx_enabled: true
 
 # Users and Groups
-nas_group: nas
-host_groups:
+nas_group: nas # Group name that will have access to all Samba shares
+
+host_groups: # List of Linux groups to create
   - group: "{{ nas_group }}"
 
-host_users:
+host_users: # List of Linux users to create
   - name: NAS
     username: nas
-    password: password
+    password: password # Use Ansible Vault: http://docs.ansible.com/ansible/latest/user_guide/playbooks_vault.html
     shell: /bin/bash
     groups: "{{ nas_group }},sudo"
 
 # Hard Drives
-array_devices:
+array_devices: # List of RAID devices
   - name: array1
     device: /dev/md0
     members:
@@ -35,7 +36,7 @@ array_devices:
     level: 1
     mountpoint: /mnt/storage
 
-block_devices:
+block_devices: # List of single disk partitions
   - device: /dev/sdd
     partition: 1
     type: primary
@@ -46,6 +47,7 @@ block_devices:
 
 # Samba
 samba_shares_root: /mnt/storage
+samba_users: "{{ host_users }}"
 samba_shares:
   - name: data
     comment: 'Data'
@@ -62,14 +64,9 @@ samba_shares:
     group: "{{ nas_group }}"
     write_list: "+{{ nas_group }}"
 
-samba_users:
-  - name: nas
-    password: password
-
 # Docker
 docker_storage: "{{ samba_shares_root }}/docker"
-docker_users:
-  - nas
+docker_users: "{{ host_users }}"
 
 # Plex
 plex_library_directory: "{{ docker_storage }}/plex/library"
@@ -130,7 +127,6 @@ time_machine_password: password
 # Nginx
 nginx_data_directory: "{{ docker_storage }}/nginx/config"
 nginx_log_directory: "{{ docker_storage }}/nginx/logs"
-nginx_server: "{{ ansible_default_ipv4.address }}"
 nginx_hosts:
   - name: plex
     port: 32400
