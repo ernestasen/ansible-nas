@@ -1,12 +1,13 @@
 ---
-- name: Create Duplicati Directory
+- name: Create Duplicati directories
   file:
     path: "{{ item }}"
     state: directory
   with_items:
     - "{{ duplicati_data_directory }}"
+  when: duplicati_enabled
 
-- name: Dupicati Docker Container
+- name: Create Duplicati container
   docker_container:
     name: duplicati
     image: linuxserver/duplicati
@@ -14,8 +15,24 @@
     ports:
       - "8200:8200"
     volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
       - "{{ duplicati_data_directory }}:/config:rw"
       - "{{ samba_shares_root }}:/source:ro"
-      - "/etc/timezone:/etc/timezone:ro"
     restart_policy: unless-stopped
-    memory: 4g
+    memory: 2g
+  when: duplicati_enabled
+
+- name: Remove Duplicati container
+  docker_container:
+    name: duplicati
+    state: absent
+  when: not duplicati_enabled
+
+- name: Remove Duplicati directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ duplicati_data_directory }}"
+  when: not duplicati_enabled

@@ -1,44 +1,22 @@
 ---
-- include: general.yml
+- import_tasks: docker.yml
 
-- include: docker.yml
+- import_tasks: plex.yml
 
-- include: portainer.yml
-  when: portainer_enabled == true
-  tags: portainer
+- import_tasks: sonarr.yml
 
-- include: transmission.yml
-  when: transmission_enabled == true
-  tags: transmission
+- import_tasks: radarr.yml
 
-- include: transmission_with_openvpn.yml
-  when: transmission_with_openvpn_enabled == true
-  tags: transmission
+- import_tasks: jackett.yml
 
-- include: sonarr.yml
-  when: sonarr_enabled == true
-  tags: sonarr
+- import_tasks: transmission.yml
 
-- include: glances.yml
-  when: glances_enabled == true
-  tags: glances
+- import_tasks: duplicati.yml
 
-- include: duplicati.yml
-  when: duplicati_enabled == true
-  tags: duplicati
+- import_tasks: glances.yml
 
-- include: crashplan.yml
-  when: crashplan_enabled == true
-  tags: crashplan
+- import_tasks: portainer.yml
 
-- include: couchpotato.yml
-  when: couchpotato_enabled == true
-  tags: couchpotato
+- import_tasks: time-machine.yml
 
-- include: sickrage.yml
-  when: sickrage_enabled == true
-  tags: sickrage
-
-- include: znc.yml
-  when: znc_enabled == true
-  tags: znc
+- import_tasks: nginx.yml

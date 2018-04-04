@@ -1,4 +1,5 @@
-- name: Glances Docker Container
+---
+- name: Create Glances container
   docker_container:
     name: glances
     image: nicolargo/glances
@@ -7,10 +8,17 @@
       - "61208:61208"
       - "61209:61209"
     volumes:
-      #- "/glances.conf:/glances/conf/glances.conf"
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
     env:
       GLANCES_OPT: "-w"
     restart_policy: unless-stopped
     memory: 1g
+  when: glances_enabled
+
+- name: Remove Glances container
+  docker_container:
+    name: glances
+    state: absent
+  when: not glances_enabled
