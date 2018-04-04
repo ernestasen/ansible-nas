@@ -1,0 +1,16 @@
+---
+- name: Configure NAS
+  hosts: vagrant
+  become: true
+  become_method: sudo
+  gather_facts: true
+  vars_files:
+    - vars/vagrant.yml
+  roles:
+    - common
+    - ntp
+    - mdadm
+    - parted
+    - samba
+    - docker
+    - nas
