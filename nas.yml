@@ -1,0 +1,28 @@
+---
+- name: Playbook for NAS hosts
+  hosts: nas
+  become: true
+  become_method: sudo
+  gather_facts: true
+  roles:
+    - common
+    - ntp
+    - mdadm
+    - parted
+    - samba
+    - docker
+    - nas
+
+- name: Playbook for Vagrant
+  hosts: vagrant
+  become: true
+  become_method: sudo
+  gather_facts: true
+  roles:
+    - common
+    - ntp
+    - mdadm
+    - parted
+    - samba
+    - docker
+    - nas

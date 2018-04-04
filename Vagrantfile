@@ -17,6 +17,9 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.provision "ansible" do |ansible|
-    ansible.playbook = "vagrant.yml"
+    ansible.playbook = "nas.yml"
+    ansible.extra_vars = {
+      nginx_server: "{{ ansible_eth1.ipv4.address }}",
+    }
   end
 end

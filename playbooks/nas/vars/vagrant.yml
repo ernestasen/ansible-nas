@@ -1,2 +1,0 @@
----
-nginx_server: "{{ ansible_eth1.ipv4.address }}"

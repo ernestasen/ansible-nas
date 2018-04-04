@@ -127,6 +127,7 @@ time_machine_password: password
 # Nginx
 nginx_data_directory: "{{ docker_storage }}/nginx/config"
 nginx_log_directory: "{{ docker_storage }}/nginx/logs"
+nginx_server: "{{ ansible_default_ipv4.address }}"
 nginx_hosts:
   - name: plex
     port: 32400
