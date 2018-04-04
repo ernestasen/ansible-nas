@@ -1,0 +1,7 @@
+---
+- name: Create groups
+  group:
+    name: "{{ item.group }}"
+    state: present
+  when: host_groups is defined
+  with_items: "{{ host_groups }}"
