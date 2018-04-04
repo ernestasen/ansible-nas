@@ -2,7 +2,7 @@
 - name: Playbook for NAS hosts
   hosts: nas
   become: true
-  become_method: sudo
+  become_method: su
   gather_facts: true
   roles:
     - common
@@ -14,7 +14,7 @@
     - nas
 
 - name: Playbook for Vagrant
-  hosts: vagrant
+  hosts: nas-vagrant
   become: true
   become_method: sudo
   gather_facts: true

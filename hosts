@@ -1,2 +1,2 @@
 [nas]
-nas-hostname ansible_host=192.168.0.111 ansible_user=username
+blackbox ansible_host=192.168.0.150 ansible_user=ernestas

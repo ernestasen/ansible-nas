@@ -29,7 +29,7 @@
     state: absent
   when: not portainer_enabled
 
-- name: Create Portainer Directories
+- name: Remove Portainer Directories
   file:
     path: "{{ item }}"
     state: absent
