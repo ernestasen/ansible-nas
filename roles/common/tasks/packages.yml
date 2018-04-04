@@ -8,6 +8,7 @@
     - dbus
     - git
     - sudo
+    - whois
     - python
     - python-pip
 

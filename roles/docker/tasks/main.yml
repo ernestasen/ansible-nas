@@ -53,6 +53,7 @@
     name: "{{ item.username }}"
     group: docker
     append: yes
+  no_log: true
   with_items: "{{ docker_users }}"
 
 - name: Create Docker storage

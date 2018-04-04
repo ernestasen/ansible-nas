@@ -21,7 +21,8 @@ host_groups: # List of Linux groups to create
 host_users: # List of Linux users to create
   - name: NAS
     username: nas
-    password: password # Use Ansible Vault: http://docs.ansible.com/ansible/latest/user_guide/playbooks_vault.html
+    password: "$6$3JXvyX2.9aLr$Wdp1MXdPC0mvZ0KLPC3lMbQzC6IaVHbtCqHZWGKLx9ezrujnJ7Q8JHjQL3lL98Wxu8oK93LXRemINr7aITPLl." # Ansible requires password to be encrypted: http://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-crypted-passwords-for-the-user-module
+    samba_password: password # Samba needs password in plain text. Use Ansible Vault to store plain text password and encrypt the file.
     shell: /bin/bash
     groups: "{{ nas_group }},sudo"
 
