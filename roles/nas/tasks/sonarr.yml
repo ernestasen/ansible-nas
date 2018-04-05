@@ -16,7 +16,7 @@
       - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
       - "{{ sonarr_tv_directory }}:/tv:rw"
-      - "{{ sonarr_download_directory }}/complete:/downloads:rw"
+      - "{{ sonarr_download_directory }}/complete:/downloads/complete:rw"
       - "{{ sonarr_data_directory }}:/config:rw"
     ports:
       - "8989:8989"
