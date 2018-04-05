@@ -41,11 +41,12 @@ Ansible NAS should work on any recent Debian box. Development was done on Debian
 2. `git clone https://www.github.com/ernestasen/ansible-nas && cd ansible-nas`
 3. Copy `roles/nas/defaults/main.yml` to `group_vars/nas-vagrant.yml`
 4. Edit `group_vars/nas-vagrant.yml` and update variables based on your needs
-5. Start and provision Vagrant box: `cd vagrant/nas && vagrant up`. Run Ansible playbook against Vagrant box: `vagrant provision`
+5. Start and provision Vagrant box: `cd vagrant/nas && vagrant up`
+6. Run Ansible playbook against Vagrant box: `vagrant provision`
 
 ## Vault
 I used `host_vars/hostname.yml` for my secret variables like `openvpn_username` and `openvpn_password` to be automatically included to the playbook. You can also do the same or just create `vault.yml` and include it in `nas.yml` playbook manually. More information on Ansible Vault usage [here](https://docs.ansible.com/ansible/2.4/vault.html).
 
 Running playbook with Ansible Vault:
 
-     `ansible-playbook -i hosts nas.yml --vault-id ~/.ansible_id --ask-become-pass`
+     ansible-playbook -i hosts nas.yml --vault-id ~/.ansible_id --ask-become-pass
