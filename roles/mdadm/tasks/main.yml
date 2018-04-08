@@ -10,6 +10,7 @@
 - name: Create arrays
   shell: "yes | mdadm --create {{ item.device }} --level={{ item.level }} --name={{ item.name }} --raid-devices={{ item.members|count }} {{ item.members|join (' ') }} --metadata=1.00"
   with_items: "{{ array_devices }}"
+  register: create_arrays
   args:
     creates: "{{ item.device }}"
 
@@ -36,8 +37,8 @@
 
 - name: Save RAID configuration
   shell: mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf
-  changed_when: false
+  when: create_arrays|changed
 
-- name: Update initial RAM file system
+- name: Update initramfs
   shell: update-initramfs -u
-  changed_when: false
+  when: create_arrays|changed
