@@ -24,7 +24,7 @@
       - "{{ transmission_watch_directory }}:/watch:rw"
     ports:
       - "9091:9091"
-      - "51414:51413"
+      - "51413:51413"
     env:
       PUID: "{{ transmission_user_id }}"
       PGID: "{{ transmission_group_id }}"
