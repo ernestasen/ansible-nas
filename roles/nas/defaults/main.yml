@@ -81,14 +81,14 @@ plex_version: latest
 # Sonarr
 sonarr_data_directory: "{{ docker_storage }}/sonarr/config"
 sonarr_tv_directory: "{{ samba_shares_root }}/media/tv"
-sonarr_download_directory: "{{ samba_shares_root }}/downloads"
+sonarr_download_directory: "{{ samba_shares_root }}/downloads/complete"
 sonarr_user_id: 0
 sonarr_group_id: 0
 
 # Radarr
 radarr_data_directory: "{{ docker_storage }}/radarr/config"
 radarr_movies_directory: "{{ samba_shares_root }}/media/movies"
-radarr_download_directory: "{{ samba_shares_root }}/downloads"
+radarr_download_directory: "{{ samba_shares_root }}/downloads/complete"
 radarr_user_id: 0
 radarr_group_id: 0
 

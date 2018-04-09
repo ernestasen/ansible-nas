@@ -5,6 +5,8 @@
     state: directory
   with_items:
     - "{{ radarr_data_directory }}"
+    - "{{ radarr_movies_directory }}"
+    - "{{ radarr_download_directory }}"
   when: radarr_enabled
 
 - name: Create Radarr container
@@ -16,7 +18,7 @@
       - "/etc/localtime:/etc/localtime:ro"
       - "/etc/timezone:/etc/timezone:ro"
       - "{{ radarr_movies_directory }}:/movies:rw"
-      - "{{ radarr_download_directory }}/complete:/downloads/complete:rw"
+      - "{{ radarr_download_directory }}:/downloads/complete:rw"
       - "{{ radarr_data_directory }}:/config:rw"
     ports:
       - "7878:7878"
@@ -39,4 +41,5 @@
     state: absent
   with_items:
     - "{{ radarr_data_directory }}"
+    - "{{ radarr_download_directory }}"
   when: not radarr_enabled

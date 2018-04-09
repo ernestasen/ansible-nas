@@ -28,3 +28,18 @@
       VERSION: "{{ plex_version }}"
     restart_policy: unless-stopped
     memory: 2g
+
+- name: Remove Plex container
+  docker_container:
+    name: plex
+    state: absent
+  when: not plex_enabled
+
+- name: Remove Plex directories
+  file:
+    path: "{{ item }}"
+    state: absent
+  with_items:
+    - "{{ plex_library_directory }}"
+    - "{{ plex_transcode_directory }}"
+  when: not plex_enabled
