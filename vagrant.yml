@@ -1,6 +1,6 @@
 ---
-- name: Playbook for NAS hosts
-  hosts: nas
+- name: Playbook for Vagrant
+  hosts: nas-vagrant
   become: true
   become_method: sudo
   gather_facts: true
