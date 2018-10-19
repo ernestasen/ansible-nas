@@ -8,6 +8,7 @@
     - "{{ plex_transcode_directory }}"
     - "{{ plex_tv_directory }}"
     - "{{ plex_movies_directory }}"
+    - "{{ plex_photos_directory }}"
 
 - name: Plex Docker Container
   docker_container:
@@ -22,6 +23,7 @@
       - "{{ plex_library_directory }}:/config:rw"
       - "{{ plex_tv_directory }}:/data/tv:rw"
       - "{{ plex_movies_directory }}:/data/movies:rw"
+      - "{{ plex_photos_directory }}:/data/photos:rw"
     env:
       PUID: "{{ plex_user_id }}"
       PGID: "{{ plex_group_id }}"

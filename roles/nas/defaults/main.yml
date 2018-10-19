@@ -74,6 +74,7 @@ plex_library_directory: "{{ docker_storage }}/plex/library"
 plex_transcode_directory: "{{ docker_storage }}/plex/transcode"
 plex_tv_directory: "{{ samba_shares_root }}/media/tv"
 plex_movies_directory: "{{ samba_shares_root }}/media/movies"
+plex_photos_directory: "{{ samba_shares_root }}/media/photos"
 plex_user_id: 0
 plex_group_id: 0
 plex_version: latest
