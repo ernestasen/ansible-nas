@@ -37,8 +37,8 @@
 
 - name: Save RAID configuration
   shell: mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf
-  when: create_arrays|changed
+  when: create_arrays is changed
 
 - name: Update initramfs
   shell: update-initramfs -u
-  when: create_arrays|changed
+  when: create_arrays is changed
