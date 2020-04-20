@@ -1,0 +1,32 @@
+---
+- name: Create Jackett directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ jackett_data_dir }}"
+    - "{{ jackett_config_dir }}"
+    - "{{ jackett_blackhole_dir }}"
+  when: jackett_enabled
+
+- name: Create Jackett container
+  docker_container:
+    name: "{{ jackett_container_name }}"
+    image: "{{ jackett_image }}:{{ jackett_image_tag }}"
+    pull: true
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    ports:
+      - "{{ jackett_port }}:9117"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ jackett_config_dir }}:/config:rw"
+      - "{{ jackett_blackhole_dir }}:/downloads:rw"
+    env:
+      PUID: "{{ jackett_user_id }}"
+      PGID: "{{ jackett_group_id }}"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: jackett_enabled

@@ -1,0 +1,34 @@
+---
+- name: Create Radarr directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ radarr_data_dir }}"
+    - "{{ radarr_config_dir }}"
+    - "{{ radarr_movies_dir }}"
+    - "{{ radarr_downloads_dir }}"
+  when: radarr_enabled
+
+- name: Create Radarr container
+  docker_container:
+    name: "{{ radarr_container_name }}"
+    image: "{{ radarr_image }}:{{ radarr_image_tag }}"
+    pull: true
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    ports:
+      - "{{ radarr_port }}:7878"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ radarr_config_dir }}:/config:rw"
+      - "{{ radarr_movies_dir }}:/movies:rw"
+      - "{{ radarr_downloads_dir }}:/downloads:rw"
+    env:
+      PUID: "{{ radarr_user_id }}"
+      PGID: "{{ radarr_group_id }}"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: radarr_enabled

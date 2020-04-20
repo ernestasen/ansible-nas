@@ -1,0 +1,28 @@
+---
+- name: Create Heimdall directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ heimdall_data_dir }}"
+    - "{{ heimdall_config_dir }}"
+  when: heimdall_enabled
+
+- name: Create Heimdall container
+  docker_container:
+    name: "{{ heimdall_container_name }}"
+    image: "{{ heimdall_image }}:{{ heimdall_image_tag }}"
+    pull: true
+    ports:
+      - "{{ heimdall_http_port }}:80"
+      - "{{ heimdall_https_port }}:443"
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ heimdall_config_dir }}:/data:rw"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: heimdall_enabled

@@ -1,0 +1,42 @@
+---
+- name: Install NAS requirements
+  apt:
+    name: "{{ nas_requirements }}"
+    state: latest
+    update_cache: yes
+
+- name: Set hostname from inventory
+  hostname:
+    name: "{{ inventory_hostname }}"
+  when: not inventory_hostname is match('(\d{1,3}\.){3}\d{1,3}')
+
+- name: Set hostname in hosts file
+  lineinfile:
+    dest: "/etc/hosts"
+    regexp: "^127.0.1.1"
+    line: "127.0.1.1       {{ inventory_hostname }}"
+  when: not inventory_hostname is match('(\d{1,3}\.){3}\d{1,3}')
+
+- name: Create NAS group
+  group:
+    name: "{{ nas_group }}"
+    state: present
+
+- name: Create NAS users
+  user:
+    name: "{{ item.username }}"
+    groups: "{{ nas_group }}"
+    password: "{{ item.password | default(omit) }}"
+    comment: "{{ item.name  | default(omit) }}"
+    shell: "{{ item.shell | default(omit) }}"
+    append: yes
+  with_items: "{{ nas_users }}"
+
+- name: Disable root login with password
+  lineinfile:
+    dest: /etc/ssh/sshd_config
+    state: present
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin without-password'
+  notify:
+   - restart ssh

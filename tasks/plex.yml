@@ -1,0 +1,31 @@
+---
+- name: Create Plex Directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ plex_data_dir }}"
+    - "{{ plex_library_dir }}"
+    - "{{ plex_transcode_dir }}"
+    - "{{ plex_tv_dir }}"
+    - "{{ plex_movies_dir }}"
+
+- name: Create Plex container
+  docker_container:
+    name: "{{ plex_container_name }}"
+    image: "{{ plex_image }}:{{ plex_image_tag }}"
+    pull: true
+    network_mode: host
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ plex_library_dir }}:/config:rw"
+      - "{{ plex_transcode_dir }}:/transcode:rw"
+      - "{{ plex_tv_dir }}:/data/tv:rw"
+      - "{{ plex_movies_dir }}:/data/movies:rw"
+    env:
+      PUID: "{{ plex_user_id }}"
+      PGID: "{{ plex_group_id }}"
+      VERSION: docker
+    restart_policy: unless-stopped
+    memory: 2g

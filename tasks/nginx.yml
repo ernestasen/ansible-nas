@@ -1,0 +1,38 @@
+---
+- name: Create Nginx directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ nginx_data_dir }}"
+    - "{{ nginx_config_dir }}"
+    - "{{ nginx_log_dir }}"
+  when: nginx_enabled
+
+- name: Create Nginx container
+  docker_container:
+    name: nginx
+    image: "{{ nginx_image }}:{{ nginx_image_tag }}"
+    pull: true
+    ports:
+      - "{{ nginx_http_port }}:80"
+      - "{{ nginx_https_port }}:443"
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    volumes:
+      - "{{ nginx_config_dir }}:/etc/nginx/conf.d:ro"
+      - "{{ nginx_log_dir }}:/var/log/nginx:rw"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: nginx_enabled
+
+- name: Create Nginx hosts
+  template:
+    src: "nginx.conf.j2"
+    dest: "{{ nginx_config_dir }}/{{ item.name }}.conf"
+  notify: restart nginx
+  with_items: "{{ nginx_hosts }}"
+  when:
+    - (item.enabled or item.enabled == "1")
+    - nginx_enabled

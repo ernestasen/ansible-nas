@@ -1,0 +1,33 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  become_method: sudo
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+      changed_when: false
+
+    - name: Include Ansible NAS
+      include_role:
+        name: ansible-nas-new
+      vars:
+        configure_storage: true
+        nas_array_devices:
+          - name: array1
+            device: /dev/md0
+            members:
+              - /dev/sdc
+              - /dev/sdd
+            filesystem: ext4
+            level: 1
+            mountpoint: /mnt/array1
+        nas_block_devices:
+          - device: /dev/sde
+            partition: 1
+            type: primary
+            mountpoint: /mnt/disk1
+            filesystem: ext4
+            start: 0%
+            end: 100%

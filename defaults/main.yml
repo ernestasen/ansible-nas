@@ -1,0 +1,236 @@
+---
+# System
+nas_group: nas # Name of NAS group
+nas_users: # List of NAS users
+  - name: NAS
+    username: nas
+    password: "$6$3JXvyX2.9aLr$Wdp1MXdPC0mvZ0KLPC3lMbQzC6IaVHbtCqHZWGKLx9ezrujnJ7Q8JHjQL3lL98Wxu8oK93LXRemINr7aITPLl." # Ansible requires password to be encrypted: https://docs.ansible.com/ansible/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module
+    shell: /bin/bash
+
+# Storage
+configure_storage: false # Set to "true" if you really want to configure storage automatically. This can cause data loss, so use only on completely new systems.
+
+nas_array_devices: # List of RAID devices
+  - name: array1
+    device: /dev/md0
+    members:
+      - /dev/sdc
+      - /dev/sdd
+    filesystem: ext4
+    level: 1
+    mountpoint: /mnt/array1
+nas_block_devices: # List of single disk partitions
+  - device: /dev/sdd
+    partition: 1
+    type: primary
+    mountpoint: /mnt/disk1
+    filesystem: ext4
+    start: 0%
+    end: 100%
+
+# Samba
+smb_users: # List of system users to access Samba shares
+  - name: nas
+    password: password # Samba role only accepts plain text passwords, but it can be encrypted with Ansible Vault: https://docs.ansible.com/ansible/latest/user_guide/vault.html
+smb_shares_root: /mnt/array1 # Directory where Samba shares will be created
+smb_shares:
+  - name: data
+    comment: "Data"
+    group: "{{ nas_group }}"
+    write_list: "+{{ nas_group }}"
+  - name: media
+    comment: "Movies and TV Shows"
+    group: "{{ nas_group }}"
+    write_list: "+{{ nas_group }}"
+  - name: downloads
+    comment: "Downloaded Stuff"
+    group: "{{ nas_group }}"
+    write_list: "+{{ nas_group }}"
+
+# Shares
+nas_data_dir: "{{ smb_shares_root }}/data"
+nas_media_dir: "{{ smb_shares_root }}/media"
+nas_downloads_dir: "{{ smb_shares_root }}/downloads"
+
+# Docker
+docker_data_root: "{{ smb_shares_root }}/docker"
+docker_network_name: nas
+
+# Plex
+plex_enabled: true
+plex_container_name: plex
+plex_image: linuxserver/plex
+plex_image_tag: latest
+plex_data_dir: "{{ docker_data_root }}/plex"
+plex_library_dir: "{{ plex_data_dir }}/library"
+plex_transcode_dir: "{{ plex_data_dir }}/transcode"
+plex_tv_dir: "{{ nas_media_dir }}/tv"
+plex_movies_dir: "{{ nas_media_dir }}/movies"
+plex_user_id: "0"
+plex_group_id: "0"
+
+# Sonarr
+sonarr_enabled: true
+sonarr_container_name: sonarr
+sonarr_image: linuxserver/sonarr
+sonarr_image_tag: latest
+sonarr_port: "8989"
+sonarr_data_dir: "{{ docker_data_root }}/sonarr"
+sonarr_config_dir: "{{ sonarr_data_dir }}/config"
+sonarr_tv_dir: "{{ nas_media_dir }}/tv"
+sonarr_downloads_dir: "{{ nas_downloads_dir }}/complete"
+sonarr_user_id: "0"
+sonarr_group_id: "0"
+
+# Radarr
+radarr_enabled: true
+radarr_container_name: radarr
+radarr_image: linuxserver/radarr
+radarr_image_tag: latest
+radarr_port: "7878"
+radarr_data_dir: "{{ docker_data_root }}/radarr"
+radarr_config_dir: "{{ radarr_data_dir }}/config"
+radarr_movies_dir: "{{ nas_media_dir }}/movies"
+radarr_downloads_dir: "{{ nas_downloads_dir }}/complete"
+radarr_user_id: "0"
+radarr_group_id: "0"
+
+# Jackett
+jackett_enabled: true
+jackett_container_name: jackett
+jackett_image: linuxserver/jackett
+jackett_image_tag: latest
+jackett_port: "9117"
+jackett_data_dir: "{{ docker_data_root }}/jackett"
+jackett_config_dir: "{{ jackett_data_dir }}/config"
+jackett_blackhole_dir: "{{ nas_downloads_dir }}/torrents"
+jackett_user_id: "0"
+jackett_group_id: "0"
+
+# Transmission
+transmission_enabled: true
+transmission_container_name: transmission
+transmission_image: linuxserver/transmission
+transmission_image_tag: latest
+transmission_http_port: "9091"
+transmission_tcp_port: "51413"
+transmission_udp_port: "51413"
+transmission_data_dir: "{{ docker_data_root }}/transmission"
+transmission_config_dir: "{{ transmission_data_dir }}/config"
+transmission_downloads_dir: "{{ nas_downloads_dir }}"
+transmission_watch_dir: "{{ nas_downloads_dir }}/torrents"
+transmission_incomplete_dir: "{{ nas_downloads_dir }}/incomplete"
+transmission_complete_dir: "{{ nas_downloads_dir }}/complete"
+transmission_user_id: "0"
+transmission_group_id: "0"
+transmission_local_network: 192.168.0.0/24
+
+# Transmission OpenVPN
+transmission_openvpn_enabled: false
+transmission_openvpn_container_name: transmission-openvpn
+transmission_openvpn_image: haugene/transmission-openvpn
+transmission_openvpn_image_tag: latest
+transmission_openvpn_provider: NORDVPN
+transmission_openvpn_config: de590.nordvpn.com.udp.ovpn
+transmission_openvpn_username: username
+transmission_openvpn_password: password # Encrypt with Ansible Vault: https://docs.ansible.com/ansible/latest/user_guide/vault.html
+
+# Duplicati
+duplicati_enabled: true
+duplicati_container_name: duplicati
+duplicati_image: linuxserver/duplicati
+duplicati_image_tag: latest
+duplicati_port: "8200"
+duplicati_data_dir: "{{ docker_data_root }}/duplicati"
+duplicati_config_dir: "{{ duplicati_data_dir }}/config"
+duplicati_source_dir: "{{ smb_shares_root }}"
+duplicati_backups_dir: "{{ nas_data_dir }}/Backups"
+
+# Glancess
+glances_enabled: true
+glances_container_name: glances
+glances_image: nicolargo/glances
+glances_image_tag: latest
+glances_http_port: "61208"
+glances_port: "61209"
+
+glances_http_port:
+glances_port:
+
+# Portainer
+portainer_enabled: true
+portainer_container_name: portainer
+portainer_image: portainer/portainer
+portainer_image_tag: latest
+portainer_port: "9000"
+portainer_data_dir: "{{ docker_data_root }}/portainer"
+portainer_config_dir: "{{ portainer_data_dir }}/config"
+
+# Heimdall
+heimdall_enabled: true
+heimdall_container_name: heimdall
+heimdall_image: linuxserver/heimdall
+heimdall_image_tag: latest
+heimdall_http_port: "8080"
+heimdall_https_port: "8443"
+heimdall_data_dir: "{{ docker_data_root }}/heimdall"
+heimdall_config_dir: "{{ heimdall_data_dir }}/config"
+
+# Nginx
+nginx_enabled: true
+nginx_container_name: nginx
+nginx_image: nginx
+nginx_image_tag: latest
+nginx_http_port: "80"
+nginx_https_port: "443"
+nginx_data_dir: "{{ docker_data_root }}/nginx"
+nginx_config_dir: "{{ nginx_data_dir }}/config"
+nginx_log_dir: "{{ nginx_data_dir }}/logs"
+nginx_hosts:
+  - name: plex
+    port: "32400"
+    domains:
+      - plex.nas
+    enabled: "{{ plex_enabled }}"
+
+  - name: sonarr
+    port: "8989"
+    domains:
+      - sonarr.nas
+    enabled: "{{ sonarr_enabled }}"
+
+  - name: radarr
+    port: "7878"
+    domains:
+      - radarr.nas
+    enabled: "{{ radarr_enabled }}"
+
+  - name: jackett
+    port: "9117"
+    domains:
+      - jackett.nas
+    enabled: "{{ jackett_enabled }}"
+
+  - name: transmission
+    port: "9091"
+    domains:
+      - transmission.nas
+    enabled: "{{ transmission_enabled + transmission_openvpn_enabled }}"
+
+  - name: duplicati
+    port: "8200"
+    domains:
+      - duplicati.nas
+    enabled: "{{ duplicati_enabled }}"
+
+  - name: glances
+    port: "61208"
+    domains:
+      - glances.nas
+    enabled: "{{ glances_enabled }}"
+
+  - name: portainer
+    port: "9000"
+    domains:
+      - portainer.nas
+    enabled: "{{ portainer_enabled }}"

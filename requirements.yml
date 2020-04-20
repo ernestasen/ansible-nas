@@ -1,0 +1,4 @@
+- name: nickjj.docker
+  version: v1.9.2
+- name: bertvv.samba
+  version: v2.7.1

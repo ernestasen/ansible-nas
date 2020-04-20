@@ -1,0 +1,18 @@
+---
+- name: Create Docker storage
+  file:
+    path: "{{ docker_data_root }}"
+    mode: u=rwx,g=x,o=x
+    state: directory
+
+- name: Run Docker role
+  include_role:
+    name: nickjj.docker
+  vars:
+    docker__users: "{{ nas_users | map(attribute='username') | list }}"
+    docker__default_daemon_json: |
+      "data-root": "{{ docker_data_root }}"
+
+- name: Create Docker network
+  docker_network:
+    name: "{{ docker_network_name }}"

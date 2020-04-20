@@ -1,0 +1,80 @@
+---
+- name: Create Transmission directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ transmission_data_dir }}"
+    - "{{ transmission_config_dir }}"
+    - "{{ transmission_downloads_dir }}"
+    - "{{ transmission_complete_dir }}"
+    - "{{ transmission_incomplete_dir }}"
+    - "{{ transmission_watch_dir }}"
+  when: transmission_enabled or transmission_openvpn_enabled
+
+- name: Create Transmission container
+  docker_container:
+    name: "{{ transmission_container_name }}"
+    image: "{{ transmission_image }}:{{ transmission_image_tag }}"
+    pull: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ transmission_config_dir }}:/config:rw"
+      - "{{ transmission_downloads_dir }}:/downloads:rw"
+      - "{{ transmission_watch_dir }}:/watch:rw"
+    ports:
+      - "{{ transmission_http_port }}:9091"
+      - "{{ transmission_tcp_port }}:51413"
+      - "{{ transmission_udp_port }}:51413/udp"
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    env:
+      PUID: "{{ transmission_user_id }}"
+      PGID: "{{ transmission_group_id }}"
+    restart_policy: unless-stopped
+    memory: 1g
+  when:
+    - transmission_enabled
+    - not transmission_openvpn_enabled
+
+- name: Create Transmission OpenVPN container
+  docker_container:
+    name: "{{ transmission_openvpn_container_name }}"
+    image: "{{ transmission_openvpn_image }}:{{ transmission_openvpn_image_tag }}"
+    pull: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ transmission_config_dir }}:/config:rw"
+      - "{{ transmission_downloads_dir }}:/downloads:rw"
+    ports:
+      - "{{ transmission_http_port }}:9091"
+      - "{{ transmission_tcp_port }}:51413"
+      - "{{ transmission_udp_port }}:51413/udp"
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    env:
+      TRANSMISSION_HOME: /config
+      TRANSMISSION_DOWNLOAD_DIR: /downloads/complete
+      TRANSMISSION_INCOMPLETE_DIR: /downloads/incomplete
+      TRANSMISSION_WATCH_DIR: /downloads/torrents
+      OPENVPN_PROVIDER: "{{ transmission_openvpn_provider }}"
+      OPENVPN_USERNAME: "{{ transmission_openvpn_username }}"
+      OPENVPN_PASSWORD: "{{ transmission_openvpn_password }}"
+      OPENVPN_CONFIG: "{{ transmission_openvpn_config }}"
+      PUID: "{{ transmission_user_id }}"
+      PGID: "{{ transmission_group_id }}"
+      LOCAL_NETWORK: "{{ transmission_local_network }}"
+      ENABLE_UFW: false
+    devices:
+      - /dev/net/tun
+    capabilities:
+      - NET_ADMIN
+    restart_policy: unless-stopped
+    memory: 1g
+  when:
+    - transmission_openvpn_enabled
+    - not transmission_enabled

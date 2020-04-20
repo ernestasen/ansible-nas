@@ -1,0 +1,34 @@
+---
+- name: Create Sonarr directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ sonarr_data_dir }}"
+    - "{{ sonarr_config_dir }}"
+    - "{{ sonarr_tv_dir }}"
+    - "{{ sonarr_downloads_dir }}"
+  when: sonarr_enabled
+
+- name: Create Sonarr container
+  docker_container:
+    name: "{{ sonarr_container_name }}"
+    image: "{{ sonarr_image }}:{{ sonarr_image_tag }}"
+    pull: true
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ sonarr_config_dir }}:/config:rw"
+      - "{{ sonarr_tv_dir }}:/tv:rw"
+      - "{{ sonarr_downloads_dir }}:/complete:rw"
+    ports:
+      - "{{ sonarr_port }}:8989"
+    env:
+      PUID: "{{ sonarr_user_id }}"
+      PGID: "{{ sonarr_group_id }}"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: sonarr_enabled

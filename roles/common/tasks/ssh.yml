@@ -1,9 +1,0 @@
----
-- name: Disable SSH login for root user with password
-  lineinfile:
-    dest: /etc/ssh/sshd_config
-    state: present
-    regexp: '^PermitRootLogin'
-    line: 'PermitRootLogin without-password'
-  notify:
-   - restart ssh

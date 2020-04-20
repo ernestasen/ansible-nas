@@ -1,4 +1,2 @@
-.vagrant
-*.retry
-group_vars/nas.yml
-host_vars/blackbox.yml
+venv
+__pycache__

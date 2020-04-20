@@ -1,0 +1,41 @@
+---
+# Setup
+- import_tasks: system.yml
+
+- import_tasks: storage.yml
+  when: configure_storage
+
+- import_tasks: samba.yml
+
+- import_tasks: docker.yml
+
+# Docker Containers
+- import_tasks: plex.yml
+  tags: plex
+
+- import_tasks: sonarr.yml
+  tags: sonarr
+
+- import_tasks: radarr.yml
+  tags: radarr
+
+- import_tasks: jackett.yml
+  tags: jackett
+
+- import_tasks: transmission.yml
+  tags: transmission
+
+- import_tasks: duplicati.yml
+  tags: duplicati
+
+- import_tasks: glances.yml
+  tags: glances
+
+- import_tasks: portainer.yml
+  tags: portainer
+
+# - import_tasks: nginx.yml
+#   tags: nginx
+
+- import_tasks: heimdall.yml
+  tags: heimdall

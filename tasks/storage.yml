@@ -1,0 +1,66 @@
+---
+- name: Create arrays
+  shell: "yes | mdadm --create {{ item.device }} --level={{ item.level }} --name={{ item.name }} --raid-devices={{ item.members|count }} {{ item.members|join (' ') }} --metadata=1.00"
+  with_items: "{{ nas_array_devices }}"
+  register: create_arrays
+  args:
+    creates: "{{ item.device }}"
+
+- name: Create filesystems for arrays
+  filesystem:
+    fstype: "{{ item.filesystem }}"
+    dev: "{{ item.device }}"
+  with_items: "{{ nas_array_devices }}"
+
+- name: Create mountpoints for arrays
+  file:
+    path: "{{ item.mountpoint }}"
+    state: directory
+  with_items: "{{ nas_array_devices }}"
+
+- name: Mount arrays
+  mount:
+    name: "{{ item.mountpoint }}"
+    src: "{{ item.device }}"
+    fstype: "{{ item.filesystem }}"
+    state: mounted
+    boot: true
+  with_items: "{{ nas_array_devices }}"
+
+- name: Save array configuration
+  shell: "{{ item }}"
+  with_items:
+    - "mdadm --detail --scan | tee -a /etc/mdadm/mdadm.conf"
+    - "update-initramfs -u"
+  when: create_arrays is changed
+
+- name: Create disks
+  parted:
+    device: "{{ item.device }}"
+    number: "{{ item.partition }}"
+    state: present
+    part_type: "{{ item.type }}"
+    part_start: "{{ item.start | default(omit) }}"
+    part_end: "{{ item.end | default(omit) }}"
+  with_items: "{{ nas_block_devices }}"
+
+- name: Create filesystems for disks
+  filesystem:
+    fstype: "{{ item.filesystem }}"
+    dev: "{{ item.device }}{{ item.partition }}"
+  with_items: "{{ nas_block_devices }}"
+
+- name: Create mountpoints for disks
+  file:
+    path: "{{ item.mountpoint }}"
+    state: directory
+  with_items: "{{ nas_block_devices }}"
+
+- name: Mount disks
+  mount:
+    name: "{{ item.mountpoint }}"
+    src: "{{ item.device }}{{ item.partition }}"
+    fstype: "{{ item.filesystem }}"
+    state: mounted
+    boot: true
+  with_items: "{{ nas_block_devices }}"

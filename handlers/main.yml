@@ -1,0 +1,8 @@
+---
+- name: restart ssh
+  service:
+    name: ssh
+    state: restarted
+
+- name: restart nginx
+  shell: docker kill -s HUP nginx

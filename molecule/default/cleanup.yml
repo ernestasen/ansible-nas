@@ -1,0 +1,13 @@
+---
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Remove test disks
+      file:
+        path: "/tmp/{{ item }}"
+        state: absent
+      with_items:
+        - nas-disk-1.vdi
+        - nas-disk-2.vdi
+        - nas-disk-3.vdi

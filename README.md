@@ -22,9 +22,9 @@ After trying FreeNAS and OpenMediaVault I decided to create my own NAS solution.
     - [Nginx](https://www.nginx.com/) for proxy passing domain names to Docker containers on NAS server
 
 ## Creating RAIDs and partitions
-I decided to include tasks for creating disk partitions mostly for testing purposes using Vagrant. However, since I applied this config for new system with new HDDs, I didn't really care about data integrity on my hard drives.
+I decided to include tasks for creating disk partitions mostly for testing purposes using Molecule/Vagrant. However, since I applied this config for new system with new HDDs, I didn't really care about data integrity on my hard drives.
 
-:heavy_exclamation_mark: I only recommend using `mdadm` and `parted` roles for Vagrant or entirely new systems, because getting partitioning wrong can be incredibly destructive.
+:heavy_exclamation_mark: I only recommend using `_storage.yml` tasks for Molecule/Vagrant or entirely new systems, because getting partitioning wrong can be incredibly destructive.
 
 ## Hardware
 Ansible NAS should work on any recent Debian box. Development was done on Debian Stretch.
@@ -37,12 +37,16 @@ Ansible NAS should work on any recent Debian box. Development was done on Debian
 5. Run the playbook: `ansible-playbook -i hosts nas.yml --ask-become-pass`
 
 ## How To Test
-1. Install Vagrant and VirtualBox
-2. `git clone https://www.github.com/ernestasen/ansible-nas && cd ansible-nas`
-3. Copy `roles/nas/defaults/main.yml` to `group_vars/nas-vagrant.yml`
-4. Edit `group_vars/nas-vagrant.yml` and update variables based on your needs
-5. Start and provision Vagrant box: `cd vagrant/nas && vagrant up`
-6. Run Ansible playbook against Vagrant box: `vagrant provision`
+1. Install Python, Vagrant and VirtualBox
+2. Create Python virtual environment
+```
+virtualenv venv
+source venv/bin/activate
+```
+3. Install requirements
+```
+pip3 install -r requirements.txt
+```
 
 ## Vault
 I used `host_vars/hostname.yml` for my secret variables like `openvpn_username` and `openvpn_password` to be automatically included to the playbook. You can also do the same or just create `vault.yml` and include it in `nas.yml` playbook manually. More information on Ansible Vault usage [here](https://docs.ansible.com/ansible/2.4/vault.html).
@@ -50,3 +54,12 @@ I used `host_vars/hostname.yml` for my secret variables like `openvpn_username` 
 Running playbook with Ansible Vault:
 
      ansible-playbook -i hosts nas.yml --vault-id ~/.ansible_id --ask-become-pass
+
+
+# To Do
+- [WARNING]: Docker warning: Your kernel does not support swap limit capabilities or the cgroup is not mounted. Memory limited without swap.
+- Tests
+- Do not expose any ports, handle everything via Nginx and Heimdall
+- Default Nginx should forward to Heimdall
+- Let's ecnrypt Nginx: https://github.com/linuxserver/Heimdall#reverse-proxy
+- Nginx password

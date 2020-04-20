@@ -1,0 +1,28 @@
+---
+- name: Create Portainer directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ portainer_data_dir }}"
+    - "{{ portainer_config_dir }}"
+  when: portainer_enabled
+
+- name: Create Portainer container
+  docker_container:
+    name: "{{ portainer_container_name }}"
+    image: "{{ portainer_image }}:{{ portainer_image_tag }}"
+    pull: true
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - "{{ portainer_config_dir }}:/data:rw"
+    ports:
+      - "{{ portainer_port }}:9000"
+    restart_policy: unless-stopped
+    memory: 1g
+  when: portainer_enabled

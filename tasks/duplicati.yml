@@ -1,0 +1,31 @@
+---
+- name: Create Duplicati directories
+  file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ duplicati_data_dir }}"
+    - "{{ duplicati_config_dir }}"
+    - "{{ duplicati_source_dir }}"
+    - "{{ duplicati_backups_dir }}"
+  when: duplicati_enabled
+
+- name: Create Duplicati container
+  docker_container:
+    name: "{{ duplicati_container_name }}"
+    image: "{{ duplicati_image }}:{{ duplicati_image_tag }}"
+    pull: true
+    ports:
+      - "{{ duplicati_port }}:8200"
+    networks:
+      - name: "{{ docker_network_name }}"
+    networks_cli_compatible: true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - "{{ duplicati_config_dir }}:/config:rw"
+      - "{{ duplicati_backups_dir }}:/backups:rw"
+      - "{{ duplicati_source_dir }}:/source:rw"
+    restart_policy: unless-stopped
+    memory: 2g
+  when: duplicati_enabled

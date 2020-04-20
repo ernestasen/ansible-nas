@@ -1,0 +1,8 @@
+---
+- name: Run Samba role
+  include_role:
+    name: bertvv.samba
+  vars:
+    samba_users: "{{ smb_users }}"
+    samba_shares_root: "{{ smb_shares_root }}"
+    samba_shares: "{{ smb_shares }}"
